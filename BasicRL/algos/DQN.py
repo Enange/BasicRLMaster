@@ -6,36 +6,47 @@ import gym
 import random
 
 
+######
+# Riga 82
+# Capire cosa fa il modello con le tonde () in keras
+#
+# ####
+
 class DQN:
+    # COSTRUTTORE
     def __init__(self, env, verbose):
+        # Prende enviroment da Gym, Verbose mostra l'avanzamento
         self.env = env
         self.verbose = verbose
 
-        self.input_shape = self.env.observation_space.shape
-        self.action_space = env.action_space.n
-        self.actor = self.get_actor_model(self.input_shape, self.action_space)
+        self.input_shape = self.env.observation_space.shape  # Input possibili
+        self.action_space = env.action_space.n  # Output possibili
+        self.actor = self.get_actor_model(self.input_shape, self.action_space) #Ritorna un modello neurale dati input e output
+
         self.actor_target = self.get_actor_model(self.input_shape, self.action_space)
-        self.actor_target.set_weights(self.actor.get_weights())
+        self.actor_target.set_weights(self.actor.get_weights())                             # PRENDE I PESII ???????
 
-        self.optimizer = keras.optimizers.Adam()
-        self.gamma = 0.95
-        self.memory_size = 2000
-        self.batch_size = 32
-        self.exploration_rate = 1.0
-        self.exploration_decay = 0.995
-        self.tau = 0.005
+        self.optimizer = keras.optimizers.Adam()    # OTTIMIZZA
+        self.gamma = 0.95   # Ammortamento Premi
+        self.memory_size = 2000 #Dimensione Memoria
+        self.batch_size = 32    #Numeri campioni propagati nella rete
+        self.exploration_rate = 1.0 #Tasso iniziale di Exploration
+        self.exploration_decay = 0.995 # Fattore di decadimento
+        self.tau = 0.005    #?????
 
-        self.run_id = np.random.randint(0, 1000)
-        self.render = False
+        self.run_id = np.random.randint(0, 1000) # ritorna un numero intero tra una distribuzione discreta per salvare i dati /data/...
+        self.render = False # Render ma non sappiamo se serve ???
 
     def loop(self, num_episodes=1000):
         reward_list = []
-        ep_reward_mean = deque(maxlen=100)
-        replay_buffer = deque(maxlen=self.memory_size)
+        ep_reward_mean = deque(maxlen=100) # usato per i dati
+        replay_buffer = deque(maxlen=self.memory_size) # lista per salvare [state, action, reward, new_state, done]
 
+        # ciclo per tutti gli episodi (in example)
         for episode in range(num_episodes):
             state, info = self.env.reset(seed=123, options={})
-            ep_reward = 0
+            ep_reward = 0   # REset reward ad ogni tentativo
+
 
             while True:
                 if self.render: self.env.render()
@@ -64,8 +75,11 @@ class DQN:
             a.assign(b * tau + a * (1 - tau))
 
     def get_action(self, state):
+        # Azione randomica all'inizio sarà sicuramente randomica
+        # exploration rate = 1 e 0 <= random <= 1
+        # pian piano si abbassa l'exploration rate e non farà più azioni casuali
         if np.random.random() < self.exploration_rate:
-            return np.random.choice(self.action_space)
+            return np.random.choice(self.action_space) # a Caso dalle scelte
         return np.argmax(self.actor(state.reshape((1, -1))))
 
     def update_networks(self, replay_buffer):

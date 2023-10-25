@@ -6,7 +6,7 @@ if __name__ == "__main__":
 	print("Hello Basic RL example!")
 	
 	# Load Gym Env
-	env = gym.make("CartPole-v1", render_mode='human')
+	env = gym.make("CartPole-v1", render_mode="human")
 
 	# Run PPO Algorithm
 	learner = BasicRL("PPO", gym_env=env, verbose=2, gamma=0.99, sigma=1.0, exploration_decay=0.99)

@@ -135,6 +135,7 @@ class BasicRL:
 	def _run_DQN(self, ep_step):
 		from BasicRL.algos.DQN import DQN
 		assert (self.discrete_env), "DQN requires discrete environments!"
+		# Iniziallizza Valori
 		algorithm = DQN( self.gym_env, self.verbose )
 		if(self.render != None): algorithm.render = self.render
 		if(self.gamma != None): algorithm.gamma = self.gamma
@@ -143,7 +144,7 @@ class BasicRL:
 		if(self.exploration_decay != None): algorithm.exploration_decay = self.exploration_decay
 		if(self.batch_size != None): algorithm.batch_size = self.batch_size
 		if(self.tau != None): algorithm.tau = self.tau
-		algorithm.loop(ep_step)
+		algorithm.loop(ep_step)	#Fa partire il vero e proprio algoritmo
 
 		if(self.save_model): algorithm.actor.save("data/final_DQN_model.h5")
 
