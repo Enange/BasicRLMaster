@@ -43,9 +43,9 @@ class DQN:
                 new_state, reward, terminated, truncated, _ = self.env.step(action)
                 ep_reward += reward
                 done = terminated or truncated
-                
+
                 replay_buffer.append([state, action, reward, new_state, done])
-                
+
                 if done: break
                 state = new_state
 
@@ -103,19 +103,16 @@ class DQN:
 
         return keras.Model(inputs, outputs)
 
-    '''
-	def get_actor_modelPT(self, input_shape, output_size):
-		self.layer_1 = nn.Linear(in_features=input_shape, out_features= 64)
-        self.layer_2 = nn.Linear(in_features=self.layer_1, out_features= 64)
-        self.layer_3 = nn.Linear(in_features=self.layer_2, out_features= output_size)
-        self.relu = nn.ReLU()
-        return self.layer_3(self.relu(self.layer_2(self.relu(self.layer_1(x)))))
-    '''
+    # def get_actor_modelPT(self, input_shape, output_size):
+    # 	    self.layer_1 = nn.Linear(in_features=input_shape, out_features= 64)
+    #     self.layer_2 = nn.Linear(in_features=self.layer_1, out_features= 64)
+    #     self.layer_3 = nn.Linear(in_features=self.layer_2, out_features= output_size)
+    #     self.relu = nn.ReLU()
+    #     return self.layer_3(self.relu(self.layer_2(self.relu(self.layer_1(x)))))
 
     ##########################
     #### VANILLA METHODS #####
     ##########################
-
     def actor_objective_function_fixed_target(self, replay_buffer):
         state = np.vstack(replay_buffer[:, 0])
         action = replay_buffer[:, 1]
