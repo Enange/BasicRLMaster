@@ -84,8 +84,8 @@ class DQN:
         return np.argmax(self.actor(state.reshape((1, -1)))) # Scelta data dalla rete neurale
 
     def update_networks(self, replay_buffer):
-        samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)), dtype=object)
-        with tf.GradientTape() as tape:
+        samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)), dtype=object)  # Prendo un Campione per la mia rete neurale
+        with tf.GradientTape() as tape:         # file = open()
             objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
             grads = tape.gradient(objective_function,
                                   self.actor.trainable_variables)  # Compute gradients actor for network
