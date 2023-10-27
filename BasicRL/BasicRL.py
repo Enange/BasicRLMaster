@@ -4,7 +4,7 @@ class BasicRL:
 
 	valid_algorithms = ["REINFORCE", "ActorCritic", "A2C", "PPO", "mcPPO", "DDPG", "DQN", "TD3"]
 
-	def __init__(self, algorithm, gym_env, verbose=2, **kwargs ):
+	def __init__(self, algorithm, gym_env, verbose=2, **kwargs):
 
 		# Class Attributes
 		self.algorithm = algorithm

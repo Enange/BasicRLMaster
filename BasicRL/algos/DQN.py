@@ -7,8 +7,8 @@ import random
 
 
 ######
-# Riga 82
-# Capire cosa fa il modello con le tonde () in keras
+# Riga 102
+# Capire il metodo actor objective function double
 #
 # ####
 
@@ -47,25 +47,26 @@ class DQN:
             state, info = self.env.reset(seed=123, options={})
             ep_reward = 0   # REset reward ad ogni tentativo
 
-
             while True:
                 if self.render: self.env.render()
-                action = self.get_action(state)
-                new_state, reward, terminated, truncated, _ = self.env.step(action)
-                ep_reward += reward
-                done = terminated or truncated
+                action = self.get_action(state)     # Ottengo l'azione da fare
+                new_state, reward, terminated, truncated, _ = self.env.step(action) #Vedo il risultato dell'azione nell' enviroment
+                ep_reward += reward     # Somma dei rewards dell'episodio
+                done = terminated or truncated  # Mi rendo conto se l'azione è fallita o terminata -> rifaccio partire il mio enviroment
 
-                replay_buffer.append([state, action, reward, new_state, done])
+                replay_buffer.append([state, action, reward, new_state, done])# Aggiorno replay buffer( record dei [state, action, reward, new_state, done])
 
+                # Episodio finito
                 if done: break
-                state = new_state
+                state = new_state       # Aggiorno lo stato in cui sono attualmente
 
                 self.update_networks(replay_buffer)
                 self._update_target(self.actor.variables, self.actor_target.variables, tau=self.tau)
 
-            self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.05 else 0.05
-            ep_reward_mean.append(ep_reward)
-            reward_list.append(ep_reward)
+            self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.05 else 0.05        # Aggiorno exploraion rate
+            ep_reward_mean.append(ep_reward)    # Ridondante
+            reward_list.append(ep_reward)       # salvo i miei punteggi
+            # Salvo i miei dati
             if self.verbose > 0: print(
                 f"Episode: {episode:7.0f}, reward: {ep_reward:8.2f}, mean_last_100: {np.mean(ep_reward_mean):8.2f}, exploration: {self.exploration_rate:0.2f}")
             if self.verbose > 1: np.savetxt(f"data/reward_DQN_{self.run_id}.txt", reward_list)
@@ -80,7 +81,7 @@ class DQN:
         # pian piano si abbassa l'exploration rate e non farà più azioni casuali
         if np.random.random() < self.exploration_rate:
             return np.random.choice(self.action_space) # a Caso dalle scelte
-        return np.argmax(self.actor(state.reshape((1, -1))))
+        return np.argmax(self.actor(state.reshape((1, -1)))) # Scelta data dalla rete neurale
 
     def update_networks(self, replay_buffer):
         samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)), dtype=object)
@@ -92,11 +93,11 @@ class DQN:
                 zip(grads, self.actor.trainable_variables))  # Apply gradients to update network weights
 
     def actor_objective_function_double(self, replay_buffer):
-        state = np.vstack(replay_buffer[:, 0])
-        action = replay_buffer[:, 1]
-        reward = np.vstack(replay_buffer[:, 2])
-        new_state = np.vstack(replay_buffer[:, 3])
-        done = np.vstack(replay_buffer[:, 4])
+        state = np.vstack(replay_buffer[:, 0]) # Prende dal RB lo stato
+        action = replay_buffer[:, 1] # Prende dal RB l'azione
+        reward = np.vstack(replay_buffer[:, 2]) # Prende dal RB il reward
+        new_state = np.vstack(replay_buffer[:, 3]) # Prende dal RB il nuovo stato
+        done = np.vstack(replay_buffer[:, 4]) # Prende dal RB il done
 
         next_state_action = np.argmax(self.actor(new_state), axis=1)
         target_mask = self.actor_target(new_state) * tf.one_hot(next_state_action, self.action_space)
