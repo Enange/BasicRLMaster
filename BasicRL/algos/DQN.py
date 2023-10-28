@@ -87,6 +87,8 @@ class DQN:
         samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)), dtype=object)  # Prendo un Campione per la mia rete neurale
         with tf.GradientTape() as tape:         # file = open()
             objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
+
+            print ("Objective function:", objective_function)
             grads = tape.gradient(objective_function,
                                   self.actor.trainable_variables)  # Compute gradients actor for network
             self.optimizer.apply_gradients(
@@ -101,7 +103,7 @@ class DQN:
 
         next_state_action = np.argmax(self.actor(new_state), axis=1)    #Calcolo le prossime azioni e ritorna 0 e 1
         target_mask = self.actor_target(new_state) * tf.one_hot(next_state_action, self.action_space)
-        target_mask = tf.reduce_sum(target_mask, axis=1, keepdims=True)
+        target_mask = tf.reduce_sum(target_mask, axis=1, keepdims=True)     # Sommando ogni riga, in un valore
 
         target_value = reward + (1 - done.astype(int)) * self.gamma * target_mask
         mask = self.actor(state) * tf.one_hot(action, self.action_space)
@@ -109,6 +111,8 @@ class DQN:
 
         mse = tf.math.square(prediction_value - target_value)
         return tf.math.reduce_mean(mse)
+
+
 
     def get_actor_model(self, input_shape, output_size):
         inputs = keras.layers.Input(shape=input_shape)
