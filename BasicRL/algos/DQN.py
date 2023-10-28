@@ -99,7 +99,7 @@ class DQN:
         new_state = np.vstack(replay_buffer[:, 3]) # Prende dal RB il nuovo stato
         done = np.vstack(replay_buffer[:, 4]) # Prende dal RB il done
 
-        next_state_action = np.argmax(self.actor(new_state), axis=1)
+        next_state_action = np.argmax(self.actor(new_state), axis=1)    #Calcolo le prossime azioni e ritorna 0 e 1
         target_mask = self.actor_target(new_state) * tf.one_hot(next_state_action, self.action_space)
         target_mask = tf.reduce_sum(target_mask, axis=1, keepdims=True)
 
