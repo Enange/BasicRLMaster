@@ -104,6 +104,7 @@ class DQN:
         next_state_action = np.argmax(self.actor(new_state), axis=1)    #Calcolo le prossime azioni e ritorna 0 e 1
         target_mask = self.actor_target(new_state) * tf.one_hot(next_state_action, self.action_space)
         target_mask = tf.reduce_sum(target_mask, axis=1, keepdims=True)     # Sommando ogni riga, in un valore
+        print(type(target_mask))
 
         target_value = reward + (1 - done.astype(int)) * self.gamma * target_mask
         mask = self.actor(state) * tf.one_hot(action, self.action_space)

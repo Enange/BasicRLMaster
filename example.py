@@ -13,7 +13,7 @@ if __name__ == "__main__":
 	# learner.learn(300)
 	
 	# Run DQN Algorithm
-	learner = BasicRL("DQN", gym_env=env, verbose=2, gamma=0.99, memory_size=10000, exploration_decay=0.99, batch_size=128)
+	learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, memory_size=10000, exploration_decay=0.99, batch_size=128)
 	learner.learn(300)
 	
 	# Plot The Results

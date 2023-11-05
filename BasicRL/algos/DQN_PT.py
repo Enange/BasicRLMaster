@@ -2,22 +2,22 @@ import torch as T
 import torch.nn as nn
 from collections import deque
 import numpy as np
-import gymnasium as gym
+import gym
 import random
 
-# LOOP 3 chiamate a funzioni non esistenti
+
+# FORWARD Must be passed a Tensor
 
 # Create the Mode
 class Network(nn.Module):
     def __init__(self, input_shape, output_size, hidden=64):
         # Input -> 64 -> 64 -> output
         super(Network, self).__init__()
-        self.input_layer = nn.Linear(in_features=input_shape, out_features=hidden)
+        self.input_layer = nn.Linear(in_features=np.array(input_shape).prod(), out_features=hidden)
         self.hidden = nn.Linear(in_features=hidden, out_features=hidden)
         self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)
 
         self.relu = nn.ReLU()
-
 
     def forward(self, x):
         return self.output_layer(self.relu(self.hidden(self.input_layer(x))))
@@ -32,20 +32,22 @@ class DQN:
 
         self.input_shape = self.env.observation_space.shape  # Input possibili
         self.action_space = env.action_space.n  # Output possibili
-        self.actor = Network(self.input_shape, self.action_space).to(self.device) #Ritorna un modello neurale dati input e output
+        self.actor = Network(self.input_shape, self.action_space).to(
+            self.device)  # Ritorna un modello neurale dati input e output
 
         self.actor_target = Network(self.input_shape, self.action_space).to(self.device)
-        self.actor_target.load_state_dict(self.actor.state_dict())      #Copia dei Parametri
+        self.actor_target.load_state_dict(self.actor.state_dict())  # Copia dei Parametri
 
-        self.optimizer = T.optim.Adam(self.actor.parameters())    # OTTIMIZZA
-        self.gamma = 0.95   # Ammortamento Premi
-        self.memory_size = 2000 #Dimensione Memoria
-        self.batch_size = 32    #Numeri campioni propagati nella rete
-        self.exploration_rate = 1.0 #Tasso iniziale di Exploration
-        self.exploration_decay = 0.995 # Fattore di decadimento
+        self.optimizer = T.optim.Adam(self.actor.parameters())  # OTTIMIZZA
+        self.gamma = 0.95  # Ammortamento Premi
+        self.memory_size = 2000  # Dimensione Memoria
+        self.batch_size = 32  # Numeri campioni propagati nella rete
+        self.exploration_rate = 1.0  # Tasso iniziale di Exploration
+        self.exploration_decay = 0.995  # Fattore di decadimento
         self.tau = 0.005
 
-        self.run_id = np.random.randint(0, 1000) # ritorna un numero intero tra una distribuzione discreta per salvare i dati /data/...
+        self.run_id = np.random.randint(0,
+                                        1000)  # ritorna un numero intero tra una distribuzione discreta per salvare i dati /data/...
         self.render = False
 
     def loop(self, num_episodes=1000):
@@ -83,3 +85,47 @@ class DQN:
             if self.verbose > 0: print(
                 f"Episode: {episode:7.0f}, reward: {ep_reward:8.2f}, mean_last_100: {np.mean(ep_reward_mean):8.2f}, exploration: {self.exploration_rate:0.2f}")
             if self.verbose > 1: np.savetxt(f"data/reward_DQN_{self.run_id}.txt", reward_list)
+
+    def _update_target(self, weights, target_weights, tau):
+        for (a, b) in zip(target_weights, weights):
+            a.assign(b * tau + a * (1 - tau))
+
+    def get_action(self, state):
+        # Azione randomica all'inizio sarà sicuramente randomica
+        # exploration rate = 1 e 0 <= random <= 1
+        # pian piano si abbassa l'exploration rate e non farà più azioni casuali
+        if np.random.random() < self.exploration_rate:
+            return np.random.choice(self.action_space)  # a Caso dalle scelte
+
+        return np.argmax(self.actor.forward(state.reshape(1, -1)))
+        # return np.argmax(self.actor(state.reshape((1, -1))))  # Scelta data dalla rete neurale
+
+    def update_networks(self, replay_buffer):
+        samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)),
+                           dtype=object)  # Prendo un Campione per la mia rete neurale
+        with T.no_grad():  # file = open()
+            objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
+            objective_function.backward()
+            self.optimizer.step()
+            self.optimizer.zero_grad()  # Apply gradients to update network weights
+
+    def actor_objective_function_double(self, replay_buffer):
+        state = np.vstack(replay_buffer[:, 0])  # Prende dal RB lo stato
+        action = replay_buffer[:, 1]  # Prende dal RB l'azione
+        reward = np.vstack(replay_buffer[:, 2])  # Prende dal RB il reward
+        new_state = np.vstack(replay_buffer[:, 3])  # Prende dal RB il nuovo stato
+        done = np.vstack(replay_buffer[:, 4])  # Prende dal RB il done
+
+        next_state_action = np.argmax(self.actor.forward(new_state),
+                                      axis=1)  # Calcolo le prossime azioni e ritorna 0 e 1
+
+        target_mask = self.actor_target.forward(new_state) * nn.functional.one_hot(T.tensor(next_state_action),
+                                                                                   self.action_space)
+        target_mask = T.sum(target_mask)  # Sommando ogni riga, in un valore
+
+        target_value = reward + (1 - done.astype(int)) * self.gamma * target_mask
+        mask = self.actor(state) * nn.functional.one_hot(action, self.action_space)
+        prediction_value = T.sum(mask)
+
+        mse = T.square(prediction_value - target_value)
+        return T.mean(mse)
