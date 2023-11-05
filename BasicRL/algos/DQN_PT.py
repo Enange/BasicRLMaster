@@ -76,7 +76,8 @@ class DQN:
                 state = new_state  # Aggiorno lo stato in cui sono attualmente
 
                 self.update_networks(replay_buffer)
-                self._update_target(self.actor.variables, self.actor_target.variables, tau=self.tau)
+                # self._update_target(self.actor.variables, self.actor_target.variables, tau=self.tau)
+                self._update_target(self.actor.parameters(), self.actor_target.parameters(), tau=self.tau)
 
             self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.05 else 0.05  # Aggiorno exploraion rate
             ep_reward_mean.append(ep_reward)  # Ridondante
