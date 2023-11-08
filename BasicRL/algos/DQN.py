@@ -88,7 +88,6 @@ class DQN:
         with tf.GradientTape() as tape:         # file = open()
             objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
 
-            print ("Objective function:", objective_function)
             grads = tape.gradient(objective_function,
                                   self.actor.trainable_variables)  # Compute gradients actor for network
             self.optimizer.apply_gradients(
@@ -97,6 +96,7 @@ class DQN:
     def actor_objective_function_double(self, replay_buffer):
         state = np.vstack(replay_buffer[:, 0]) # Prende dal RB lo stato
         action = replay_buffer[:, 1] # Prende dal RB l'azione
+        print(action)
         reward = np.vstack(replay_buffer[:, 2]) # Prende dal RB il reward
         new_state = np.vstack(replay_buffer[:, 3]) # Prende dal RB il nuovo stato
         done = np.vstack(replay_buffer[:, 4]) # Prende dal RB il done
@@ -104,7 +104,6 @@ class DQN:
         next_state_action = np.argmax(self.actor(new_state), axis=1)    #Calcolo le prossime azioni e ritorna 0 e 1
         target_mask = self.actor_target(new_state) * tf.one_hot(next_state_action, self.action_space)
         target_mask = tf.reduce_sum(target_mask, axis=1, keepdims=True)     # Sommando ogni riga, in un valore
-        print(type(target_mask))
 
         target_value = reward + (1 - done.astype(int)) * self.gamma * target_mask
         mask = self.actor(state) * tf.one_hot(action, self.action_space)
