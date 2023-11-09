@@ -37,6 +37,9 @@ class DQN:
         self.actor = Network(self.input_shape, self.action_space).to(
             self.device)  # Ritorna un modello neurale dati input e output
 
+        print(self.action_space)
+
+
         self.actor_target = Network(self.input_shape, self.action_space).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())  # Copia dei Parametri
 
@@ -150,10 +153,10 @@ class DQN:
 
         target_mask = self.actor_target.forward(new_state) * nn.functional.one_hot(T.tensor(next_state_action),
                                                                                    self.action_space)
-        target_mask = T.sum(target_mask)  # Sommando ogni riga, in un valore
+        target_mask = T.sum(target_mask, dim=1, keepdim=True)  # Sommando ogni riga, in un valore
         target_value = reward + (1 - done) * self.gamma * target_mask
         mask = self.actor(T.tensor(state)) * nn.functional.one_hot(action, self.action_space)
-        prediction_value = T.sum(mask)
+        prediction_value = T.sum(mask, dim=1, keepdim=True)
 
         mse = T.square(prediction_value - target_value)
         return T.mean(mse)

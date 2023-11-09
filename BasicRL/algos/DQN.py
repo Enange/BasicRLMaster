@@ -21,6 +21,7 @@ class DQN:
 
         self.input_shape = self.env.observation_space.shape  # Input possibili
         self.action_space = env.action_space.n  # Output possibili
+
         self.actor = self.get_actor_model(self.input_shape, self.action_space) #Ritorna un modello neurale dati input e output
 
         self.actor_target = self.get_actor_model(self.input_shape, self.action_space)
@@ -162,4 +163,5 @@ class DQN:
         prediction_value = tf.reduce_sum(mask, axis=1, keepdims=True)
 
         mse = tf.math.square(prediction_value - target_value)
+        tf.reduce_mean
         return tf.math.reduce_mean(mse)
