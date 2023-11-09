@@ -127,10 +127,10 @@ class DQN:
         with T.no_grad():  # file = open()
             objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
 
-            objective_function.requires_grad = True
-            self.optimizer.zero_grad()
-            objective_function.backward()
-            self.optimizer.step()  # Apply gradients to update network weights
+        objective_function.requires_grad = True
+        self.optimizer.zero_grad()
+        objective_function.backward()
+        self.optimizer.step()  # Apply gradients to update network weights
 
     def actor_objective_function_double(self, replay_buffer):
         state = torch.from_numpy(np.vstack(replay_buffer[:, 0])).float().to(self.device)  # Prende dal RB lo stato
