@@ -17,7 +17,7 @@ class Network(nn.Module):
         super(Network, self).__init__()
         self.input_layer = nn.Linear(in_features=input_shape, out_features=hidden)
         self.hidden = nn.Linear(in_features=hidden, out_features=hidden)
-        self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)    #np.array(output_size).prod())
+        self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)  # np.array(output_size).prod())
 
     def forward(self, x):
         x = nn.functional.relu(self.input_layer(x))
@@ -32,8 +32,7 @@ class DQN:
         self.env = env
         self.verbose = verbose
         self.device = T.device("cuda:0" if T.cuda.is_available() else "cpu")
-
-        self.input_shape = self.env.observation_space.shape[0] # Input possibili
+        self.input_shape = self.env.observation_space.shape[0]  # Input possibili
         self.action_space = env.action_space.n  # Output possibili
         self.actor = Network(self.input_shape, self.action_space).to(
             self.device)  # Ritorna un modello neurale dati input e output
@@ -57,7 +56,6 @@ class DQN:
         reward_list = []
         ep_reward_mean = deque(maxlen=100)  # usato per i dati
         replay_buffer = deque(maxlen=self.memory_size)  # lista per salvare [state, action, reward, new_state, done]
-
 
         # ciclo per tutti gli episodi (in example)
         for episode in range(num_episodes):
@@ -118,15 +116,15 @@ class DQN:
         # print(action_val.cpu().data.numpy())
         return np.argmax(action_val.cpu().data.numpy())
 
-        #return np.argmax(self.actor(state.reshape((1, -1))))  # Scelta data dalla rete neurale
+        # return np.argmax(self.actor(state.reshape((1, -1))))  # Scelta data dalla rete neurale
 
     def update_networks(self, replay_buffer):
         samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)),
                            dtype=object)  # Prendo un Campione per la mia rete neurale
         with T.no_grad():  # file = open()
-            objective_function = T.tensor(self.actor_objective_function_double(samples),
-                                          requires_grad=True)  # Compute loss with custom loss function
+            objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
 
+            objective_function.requires_grad = True
             self.optimizer.zero_grad()
             objective_function.backward()
             self.optimizer.step()  # Apply gradients to update network weights
@@ -139,9 +137,9 @@ class DQN:
         # #print(listT)
         ## MAGHEGGIO STRANISSIMO DA SISTEMARE (trasformato il replay buffer in lista,
         ## perchè
-        #print(list(replay_buffer[:,1]));
-        action = T.tensor(list(replay_buffer[:,1])).to(self.device)  # Prende dal RB l'azione
-        reward = torch.from_numpy(np.vstack(replay_buffer[:, 2])).float().to(self.device)  # Prende dal RB il reward
+        # print(list(replay_buffer[:,1]));
+        action = T.tensor(list(replay_buffer[:, 1])).to(self.device)  # Prende dal RB l'azione
+        reward = torch.from_numpy(np.vstack(replay_buffer[:, 2])).to(self.device)  # Prende dal RB il reward
         new_state = torch.from_numpy(np.vstack(replay_buffer[:, 3])).float().to(
             self.device)  # Prende dal RB il nuovo stato
         done = torch.from_numpy(np.vstack(replay_buffer[:, 4]).astype(np.int8)).float().to(

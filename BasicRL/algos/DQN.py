@@ -82,7 +82,8 @@ class DQN:
         if np.random.random() < self.exploration_rate:
             return np.random.choice(self.action_space) # a Caso dalle scelte
 
-        return np.argmax(self.actor(state.reshape((1, -1)))) # Scelta data dalla rete neurale
+        res = np.argmax(self.actor(state.reshape((1, -1))))
+        return res # Scelta data dalla rete neurale
 
     def update_networks(self, replay_buffer):
         samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)), dtype=object)  # Prendo un Campione per la mia rete neurale
@@ -97,7 +98,6 @@ class DQN:
     def actor_objective_function_double(self, replay_buffer):
         state = np.vstack(replay_buffer[:, 0]) # Prende dal RB lo stato
         action = replay_buffer[:, 1] # Prende dal RB l'azione
-        print(action)
         reward = np.vstack(replay_buffer[:, 2]) # Prende dal RB il reward
         new_state = np.vstack(replay_buffer[:, 3]) # Prende dal RB il nuovo stato
         done = np.vstack(replay_buffer[:, 4]) # Prende dal RB il done
@@ -111,7 +111,8 @@ class DQN:
         prediction_value = tf.reduce_sum(mask, axis=1, keepdims=True)
 
         mse = tf.math.square(prediction_value - target_value)
-        return tf.math.reduce_mean(mse)
+        res = tf.math.reduce_mean(mse)
+        return res
 
 
 
