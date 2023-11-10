@@ -12,17 +12,19 @@ import random
 
 # Create the Mode
 class Network(nn.Module):
-    def __init__(self, input_shape, output_size, hidden=64):
+    def __init__(self, input_shape, output_size, hidden=32):
         # Input -> 64 -> 64 -> output
         super(Network, self).__init__()
         self.input_layer = nn.Linear(in_features=input_shape, out_features=hidden)
         self.hidden = nn.Linear(in_features=hidden, out_features=hidden)
+        self.hidden2 = nn.Linear(in_features=hidden, out_features=hidden)
         self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)  # np.array(output_size).prod())
 
     def forward(self, x):
         #x = nn.functional.relu(self.input_layer(x))
         x = self.input_layer(x)
         x = nn.functional.relu(self.hidden(x))
+        x = nn.functional.relu(self.hidden2(x))
 
         return self.output_layer(x)
 
@@ -65,7 +67,7 @@ class DQN:
         for episode in range(num_episodes):
             state, info = self.env.reset(seed=123, options={})
             ep_reward = 0  # REset reward ad ogni tentativo
-
+            print(self.exploration_rate)
             while True:
                 if self.render: self.env.render()
                 action = self.get_action(state)  # Ottengo l'azione da fare
@@ -107,6 +109,7 @@ class DQN:
         # exploration rate = 1 e 0 <= random <= 1
         # pian piano si abbassa l'exploration rate e non farà più azioni casuali
         if np.random.random() < self.exploration_rate:
+
             return np.random.choice(self.action_space)  # a Caso dalle scelte
 
         state = state.reshape(1, -1)

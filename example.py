@@ -15,7 +15,7 @@ if __name__ == "__main__":
     # Run DQN Algorithm
     learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, memory_size=10000, exploration_decay=0.99,
                       batch_size=128)
-    learner.learn(300)
+    learner.learn(1000)
 
     # Plot The Results
     plotter = MyPlotter(x_label="Episode", y_label="Reward", title="CartPole v1")
