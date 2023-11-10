@@ -20,7 +20,8 @@ class Network(nn.Module):
         self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)  # np.array(output_size).prod())
 
     def forward(self, x):
-        x = nn.functional.relu(self.input_layer(x))
+        #x = nn.functional.relu(self.input_layer(x))
+        x = self.input_layer(x)
         x = nn.functional.relu(self.hidden(x))
 
         return self.output_layer(x)
@@ -124,10 +125,11 @@ class DQN:
     def update_networks(self, replay_buffer):
         samples = np.array(random.sample(replay_buffer, min(len(replay_buffer), self.batch_size)),
                            dtype=object)  # Prendo un Campione per la mia rete neurale
-        with T.no_grad():  # file = open()
-            objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
+        # with T.autograd.grad():  # file = open()
 
-        objective_function.requires_grad = True
+        objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
+
+        #objective_function.requires_grad = True
         self.optimizer.zero_grad()
         objective_function.backward()
         self.optimizer.step()  # Apply gradients to update network weights
@@ -148,8 +150,9 @@ class DQN:
         done = torch.from_numpy(np.vstack(replay_buffer[:, 4]).astype(np.int8)).float().to(
             self.device)  # Prende dal RB il done
 
-        next_state_action = np.argmax(self.actor.forward(new_state),
-                                      axis=1)  # Calcolo le prossime azioni e ritorna 0 e 1
+        #next_state_action= np.argmax(self.actor.forward(new_state),axis=1)  # Calcolo le prossime azioni e ritorna 0 e 1
+        next_state_action= self.actor.forward(new_state)  # Calcolo le prossime azioni e ritorna 0 e 1
+        next_state_action= np.argmax(next_state_action.detach().numpy(),axis=1)
 
         target_mask = self.actor_target.forward(new_state) * nn.functional.one_hot(T.tensor(next_state_action),
                                                                                    self.action_space)
