@@ -38,7 +38,7 @@ class PPO:
 		self.render = False
 
 
-	def loop( self, num_episodes=1000 ):
+	def loop( self, num_episodes=1000):
 		reward_list = []
 		ep_reward_mean = deque(maxlen=100)
 		memory_buffer = deque()

@@ -70,7 +70,8 @@ class DQN:
             # Salvo i miei dati
             if self.verbose > 0: print(
                 f"Episode: {episode:7.0f}, reward: {ep_reward:8.2f}, mean_last_100: {np.mean(ep_reward_mean):8.2f}, exploration: {self.exploration_rate:0.2f}")
-            if self.verbose > 1: np.savetxt(f"data/reward_DQN_{self.run_id}.txt", reward_list)
+            if self.verbose > 1:
+                np.savetxt(f"data/reward_DQN_{self.run_id}.txt", reward_list)
 
     def _update_target(self, weights, target_weights, tau):
         for (a, b) in zip(target_weights, weights):

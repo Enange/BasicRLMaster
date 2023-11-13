@@ -67,7 +67,7 @@ class DQN:
         for episode in range(num_episodes):
             state, info = self.env.reset(seed=123, options={})
             ep_reward = 0  # REset reward ad ogni tentativo
-            print(self.exploration_rate)
+
             while True:
                 if self.render: self.env.render()
                 action = self.get_action(state)  # Ottengo l'azione da fare

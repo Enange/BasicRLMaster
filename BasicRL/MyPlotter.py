@@ -5,10 +5,10 @@ from collections import deque
 class MyPlotter():
 	def __init__(self, x_label="X Label", y_label="Y Label", title="No Title"):
 		self.fig, self.ax = plt.subplots(1)
-		self.ax.spines["top"].set_visible(False)    
-		self.ax.spines["bottom"].set_visible(False)    
-		self.ax.spines["right"].set_visible(False)    
-		self.ax.spines["left"].set_visible(False)  
+		self.ax.spines["top"].set_visible(False)
+		self.ax.spines["bottom"].set_visible(False)
+		self.ax.spines["right"].set_visible(False)
+		self.ax.spines["left"].set_visible(False)
 		self.ax.set_facecolor('#eaeaf2')
 		plt.grid(color='#ffffff', linestyle='-', linewidth=1)
 		plt.xticks(fontsize=12)
@@ -17,12 +17,12 @@ class MyPlotter():
 		plt.xlabel(x_label, fontsize=12)
 		plt.ylabel(y_label, fontsize=12)
 		plt.title(title, fontsize=16)
-		
+
 		self.data_arrays = []
 		self.array_len = -1
 
 		self.mean_array = []
-		self.var_array =  []
+		self.var_array = []
 		self.max_array = []
 		self.min_array = []
 
@@ -45,7 +45,6 @@ class MyPlotter():
 		self.ax.legend(loc='lower right', bbox_to_anchor=(1, 0), fontsize=14)
 		plt.show()
 
-	
 	def render_std(self, labels, colors):
 		err_msg = "load some data before the render!"
 		assert self.array_len > 0, err_msg
@@ -58,7 +57,7 @@ class MyPlotter():
 		plt.show()
 
 
-	def process_data(self, rolling_window=1, starting_pointer=0, early_stop=None):		
+	def process_data(self, rolling_window=1, starting_pointer=0, early_stop=None):
 		rolling_queue = deque(maxlen=rolling_window)
 		self.x_axes = [i for i in range(self.array_len-starting_pointer)]
 
@@ -76,4 +75,4 @@ class MyPlotter():
 		self.var_array =  np.array([[np.std(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays])
 		self.max_array = [[np.max(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays]
 		self.min_array = [[np.min(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays]
-				
+
