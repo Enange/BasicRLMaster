@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 
+
 class MyPlotter():
 	def __init__(self, x_label="X Label", y_label="Y Label", title="No Title"):
 		self.fig, self.ax = plt.subplots(1)
@@ -26,13 +27,15 @@ class MyPlotter():
 		self.max_array = []
 		self.min_array = []
 
-	
 	def load_array(self, file_name_arrays, early_stop=None):
-		data_arrays = [[np.loadtxt(name, delimiter='\n', unpack=True) for name in array_set] for array_set in file_name_arrays]
+		data_arrays = [[np.genfromtxt(name, delimiter="\n", unpack=True) for name in array_set] for array_set in file_name_arrays]
+
+
+
 		if(early_stop == None): self.array_len = min([min([len(el) for el in array_set]) for array_set in data_arrays])
 		else: self.array_len = early_stop
+		print(self.array_len)
 		self.data_arrays = np.array([[el[:self.array_len] for el in array_set] for array_set in data_arrays], dtype=object)
-
 
 	def render(self, labels, colors):
 		err_msg = "load some data before the render!"
@@ -56,7 +59,6 @@ class MyPlotter():
 		self.ax.legend(loc='lower right', bbox_to_anchor=(1, 0), fontsize=14)
 		plt.show()
 
-
 	def process_data(self, rolling_window=1, starting_pointer=0, early_stop=None):
 		rolling_queue = deque(maxlen=rolling_window)
 		self.x_axes = [i for i in range(self.array_len-starting_pointer)]
@@ -70,9 +72,8 @@ class MyPlotter():
 
 		# Fix for different array size
 		self.data_arrays = np.array([np.array(el) for el in self.data_arrays], dtype=object)
-		
 		self.mean_array = np.array([[np.mean(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays])
-		self.var_array =  np.array([[np.std(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays])
+		self.var_array = np.array([[np.std(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays])
 		self.max_array = [[np.max(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays]
 		self.min_array = [[np.min(array_set[:, i]) for i in range(self.array_len)][starting_pointer:] for array_set in self.data_arrays]
 

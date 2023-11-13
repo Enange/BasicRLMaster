@@ -70,6 +70,7 @@ class DQN:
 
             while True:
                 if self.render: self.env.render()
+
                 action = self.get_action(state)  # Ottengo l'azione da fare
 
                 new_state, reward, terminated, truncated, _ = self.env.step(
@@ -89,18 +90,23 @@ class DQN:
                 # self._update_target(self.actor.variables, self.actor_target.variables, tau=self.tau)
                 self._update_target(self.actor.parameters(), self.actor_target.parameters(), tau=self.tau)
 
+            #epsilon = linear_schedule(1.0, 0.05, args.exploration_fraction * num_episodes, episode)
             self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.05 else 0.05  # Aggiorno exploraion rate
             ep_reward_mean.append(ep_reward)  # Ridondante
             reward_list.append(ep_reward)  # salvo i miei punteggi
             # Salvo i miei dati
             if self.verbose > 0: print(
                 f"Episode: {episode:7.0f}, reward: {ep_reward:8.2f}, mean_last_100: {np.mean(ep_reward_mean):8.2f}, exploration: {self.exploration_rate:0.2f}")
-            if self.verbose > 1: np.savetxt(f"data/reward_DQN_{self.run_id}.txt", reward_list)
+            if self.verbose > 1: np.savetxt(f"data/reward_DQNPT_{self.run_id}.txt", reward_list)
 
     def _update_target(self, weights, target_weights, tau):
         for (a, b) in zip(target_weights, weights):
             # a.assign(b * tau + a * (1 - tau))
             a.data.copy_(b * tau + a * (1 - tau))
+
+    def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
+        slope = (end_e - start_e) / duration
+        return max(slope * t + start_e, end_e)
 
     def get_action(self, state):
 
@@ -108,6 +114,9 @@ class DQN:
         # Azione randomica all'inizio sarà sicuramente randomica
         # exploration rate = 1 e 0 <= random <= 1
         # pian piano si abbassa l'exploration rate e non farà più azioni casuali
+
+
+
         if np.random.random() < self.exploration_rate:
 
             return np.random.choice(self.action_space)  # a Caso dalle scelte
