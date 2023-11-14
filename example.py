@@ -19,8 +19,9 @@ if __name__ == "__main__":
     # Plot The Results
     plotter = MyPlotter(x_label="Episode", y_label="Reward", title="CartPole v1")
     plotter.load_array([
-        glob.glob("data/reward_DQN_*.txt"),
+        #glob.glob("data/reward_DQN_*.txt"),
         glob.glob("data/reward_DQNPT_*.txt")
     ])
     plotter.process_data(rolling_window=300, starting_pointer=30)
-    plotter.render_std(labels=["DQN", "DQN_PT"], colors=["g", "r"])
+    #plotter.render_std(labels=["DQN", "DQN_PT"], colors=["g", "r"])
+    plotter.render_std(labels=["DQN_PT"], colors=["g"])

@@ -96,8 +96,10 @@ class DQN:
                 # self._update_target(self.actor.variables, self.actor_target.variables, tau=self.tau)
                 self._update_target(self.actor.parameters(), self.actor_target.parameters(), tau=self.tau)
 
-            #epsilon = linear_schedule(1.0, 0.05, args.exploration_fraction * num_episodes, episode)
-            self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.05 else 0.05  # Aggiorno exploraion rate
+            # Exponetial
+            self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
+            #Linear
+            #self.exploration_rate = self.exploration_rate - self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
             ep_reward_mean.append(ep_reward)  # Ridondante
             reward_list.append(ep_reward)  # salvo i miei punteggi
             # Salvo i miei dati
@@ -107,7 +109,6 @@ class DQN:
 
     def _update_target(self, weights, target_weights, tau):
         for (a, b) in zip(target_weights, weights):
-            # a.assign(b * tau + a * (1 - tau))
             a.data.copy_(b * tau + a * (1 - tau))
 
     def get_action(self, state):
@@ -118,13 +119,10 @@ class DQN:
         # pian piano si abbassa l'exploration rate e non farà più azioni casuali
 
 
-
         if np.random.random() < self.exploration_rate:
-
             return np.random.choice(self.action_space)  # a Caso dalle scelte
 
         state = state.reshape(1, -1)
-
         action_val = self.actor(T.tensor(state))
         # print("\n\n")
         # print(action_val)
