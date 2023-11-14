@@ -4,19 +4,18 @@
 ![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
 ![Matplotlib](https://img.shields.io/badge/Matplotlib-%23ffffff.svg?style=for-the-badge&logo=Matplotlib&logoColor=black)
 
-### Disclaimer:
-This is a **work in progress repo**, there may be bugs in the code and numerous typos in the README file.
+**work in progress repo**
 
 # BasicRL
 A basic implementation of the standard reinforcement learning algorithms in Pytorch, designed to work with gym-like environments.
-All others algorithms in Tensorflow, basicRl and Myplotter are written by **Davide Corsi** 
+All others algorithms in Tensorflow, basicRl.py and Myplotter.py have been written by **Davide Corsi** 
 
 ## Available Algorithms in Pytorch
 
 - [x] Deep Q-Learning (DDQN)
 - [ ] REINFORCE
 
-## Available Algorithms in TensorFlow
+## Available Algorithms in TensorFlow (made by D.Corsi)
 - [x] REINFORCE
 - [x] Actor-Critic
 - [x] Advantage Actor Critic (A2C)
@@ -47,11 +46,11 @@ Download the repo:
 ```
 Run the main script
 ```bash
-  python3 example.py
-```
+  python example.py
+  ```
 
 ## Built With
-* [Pytorch]()
+* [Pytorch](https://pytorch.org/)
 * [Tensorflow](https://www.tensorflow.org/)
 * [OpenAI Gym](https://gym.openai.com/)
 * [Numpy](https://numpy.org/)
