@@ -46,11 +46,11 @@ Download the repo:
 ```
 Run the main script
 ```bash
-  python3 example.py
-```
+  python example.py
+  ```
 
 ## Built With
-* [Pytorch]()
+* [Pytorch](https://pytorch.org/)
 * [Tensorflow](https://www.tensorflow.org/)
 * [OpenAI Gym](https://gym.openai.com/)
 * [Numpy](https://numpy.org/)
