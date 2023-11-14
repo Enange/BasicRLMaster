@@ -12,16 +12,17 @@ import random
 
 # Create the Mode
 class Network(nn.Module):
-    def __init__(self, input_shape, output_size, hidden=32):
+    def __init__(self, input_shape, output_size, hiddenNodes=32):
         # Input -> 64 -> 64 -> output
         super(Network, self).__init__()
-        self.input_layer = nn.Linear(in_features=input_shape, out_features=hidden)
-        self.hidden = nn.Linear(in_features=hidden, out_features=hidden)
-        self.hidden2 = nn.Linear(in_features=hidden, out_features=hidden)
-        self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)  # np.array(output_size).prod())
+        self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
+        self.hidden = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
+        self.hidden2 = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
+        self.output_layer = nn.Linear(in_features=hiddenNodes,
+                                      out_features=output_size)  # np.array(output_size).prod())
 
     def forward(self, x):
-        #x = nn.functional.relu(self.input_layer(x))
+        # x = nn.functional.relu(self.input_layer(x))
         x = self.input_layer(x)
         x = nn.functional.relu(self.hidden(x))
         x = nn.functional.relu(self.hidden2(x))
@@ -39,17 +40,13 @@ class DQN:
         self.action_space = env.action_space.n  # Output possibili
         self.actor = Network(self.input_shape, self.action_space).to(
             self.device)  # Ritorna un modello neurale dati input e output
-
-        print(self.action_space)
-
-
         self.actor_target = Network(self.input_shape, self.action_space).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())  # Copia dei Parametri
 
         self.optimizer = T.optim.Adam(self.actor.parameters())  # OTTIMIZZA
-        self.gamma = 0.95 #0.95  # Ammortamento Premi
-        self.memory_size = 2000  # Dimensione Memoria
-        self.batch_size = 32 #32  # Numeri campioni propagati nella rete
+        self.gamma = 0.95  # 0.95  # Ammortamento Premi
+        self.memory_size = 2000  # 2000 Dimensione Memoria
+        self.batch_size = 128  # 32 # Numeri campioni propagati nella rete
         self.exploration_rate = 1.0  # Tasso iniziale di Exploration
         self.exploration_decay = 0.995  # Fattore di decadimento
         self.tau = 0.005
@@ -64,10 +61,10 @@ class DQN:
         replay_buffer = deque(maxlen=self.memory_size)  # lista per salvare [state, action, reward, new_state, done]
 
         # EXPLORATION DECAY
-        #Expo
-        #self.exploration_decay = (0.005 / self.exploration_rate) ** (1 / num_episodes)
-        #Linear
-        #self.exploration_decay = (self.exploration_rate - 0.005) / num_episodes
+        # Expo
+        self.exploration_decay = (0.005 / self.exploration_rate) ** (1 / num_episodes)
+        # Linear
+        # self.exploration_decay = (self.exploration_rate - 0.005) / num_episodes
         # ciclo per tutti gli episodi (in example)
         for episode in range(num_episodes):
             state, info = self.env.reset(seed=123, options={})
@@ -98,8 +95,8 @@ class DQN:
 
             # Exponetial
             self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
-            #Linear
-            #self.exploration_rate = self.exploration_rate - self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
+            # Linear
+            # self.exploration_rate = self.exploration_rate - self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
             ep_reward_mean.append(ep_reward)  # Ridondante
             reward_list.append(ep_reward)  # salvo i miei punteggi
             # Salvo i miei dati
@@ -118,18 +115,12 @@ class DQN:
         # exploration rate = 1 e 0 <= random <= 1
         # pian piano si abbassa l'exploration rate e non farà più azioni casuali
 
-
         if np.random.random() < self.exploration_rate:
             return np.random.choice(self.action_space)  # a Caso dalle scelte
 
         state = state.reshape(1, -1)
         action_val = self.actor(T.tensor(state))
-        # print("\n\n")
-        # print(action_val)
-        # print(action_val.cpu())
-        # print(action_val.cpu().data)
-        # print(np.argmax(action_val.cpu().data.numpy()))
-        # print(action_val.cpu().data.numpy())
+
         return np.argmax(action_val.cpu().data.numpy())
 
         # return np.argmax(self.actor(state.reshape((1, -1))))  # Scelta data dalla rete neurale
@@ -141,20 +132,13 @@ class DQN:
 
         objective_function = self.actor_objective_function_double(samples)  # Compute loss with custom loss function
 
-        #objective_function.requires_grad = True
+        # objective_function.requires_grad = True
         self.optimizer.zero_grad()
         objective_function.backward()
         self.optimizer.step()  # Apply gradients to update network weights
 
     def actor_objective_function_double(self, replay_buffer):
         state = torch.from_numpy(np.vstack(replay_buffer[:, 0])).float().to(self.device)  # Prende dal RB lo stato
-        # listT = list()
-        # for obj in replay_buffer[:,1]:
-        #     listT.append(obj)
-        # #print(listT)
-        ## MAGHEGGIO STRANISSIMO DA SISTEMARE (trasformato il replay buffer in lista,
-        ## perchè
-        # print(list(replay_buffer[:,1]));
         action = T.tensor(list(replay_buffer[:, 1])).to(self.device)  # Prende dal RB l'azione
         reward = torch.from_numpy(np.vstack(replay_buffer[:, 2])).to(self.device)  # Prende dal RB il reward
         new_state = torch.from_numpy(np.vstack(replay_buffer[:, 3])).float().to(
@@ -162,9 +146,9 @@ class DQN:
         done = torch.from_numpy(np.vstack(replay_buffer[:, 4]).astype(np.int8)).float().to(
             self.device)  # Prende dal RB il done
 
-        #next_state_action= np.argmax(self.actor.forward(new_state),axis=1)  # Calcolo le prossime azioni e ritorna 0 e 1
-        next_state_action= self.actor.forward(new_state)  # Calcolo le prossime azioni e ritorna 0 e 1
-        next_state_action= np.argmax(next_state_action.detach().numpy(),axis=1)
+        # next_state_action= np.argmax(self.actor.forward(new_state),axis=1)  # Calcolo le prossime azioni e ritorna 0 e 1
+        next_state_action = self.actor.forward(new_state)  # Calcolo le prossime azioni e ritorna 0 e 1
+        next_state_action = np.argmax(next_state_action.detach().numpy(), axis=1)
 
         target_mask = self.actor_target.forward(new_state) * nn.functional.one_hot(T.tensor(next_state_action),
                                                                                    self.action_space)
