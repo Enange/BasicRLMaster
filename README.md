@@ -9,7 +9,7 @@ This is a **work in progress repo**, there may be bugs in the code and numerous 
 
 # BasicRL
 A basic implementation of the standard reinforcement learning algorithms in Pytorch, designed to work with gym-like environments.
-All others algorithms in Tensorflow, basicRl and Myplotter are written by **Davide Corsi** -davide.corsi@univr.it
+All others algorithms in Tensorflow, basicRl and Myplotter are written by **Davide Corsi** 
 
 ## Available Algorithms in Pytorch
 
@@ -58,6 +58,7 @@ Run the main script
 * [Matplot Lib](https://matplotlib.org/)
 
 ## Author
+* **Davide Corsi** -davide.corsi@univr.it
 * **Enrico Angelico**
 * **Riccardo Portaro**
 
