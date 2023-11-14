@@ -9,12 +9,12 @@ if __name__ == "__main__":
     env = gym.make("CartPole-v1", render_mode=None)
 
     # Run PPO Algorithm
-    learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, sigma=1.0, exploration_decay=0.985)
-    learner.learn(10000)
+    learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, exploration_decay=0.99)
+    learner.learn(5000)
 
     # Run DQN Algorithm
-    learner = BasicRL("DQN", gym_env=env, verbose=2, gamma=0.99, exploration_decay=0.99)
-    learner.learn(200)
+    #learner = BasicRL("DQN", gym_env=env, verbose=2, gamma=0.99, exploration_decay=0.99)
+    #learner.learn(40)
 
     # Plot The Results
     plotter = MyPlotter(x_label="Episode", y_label="Reward", title="CartPole v1")

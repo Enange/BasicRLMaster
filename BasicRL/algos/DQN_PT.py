@@ -47,9 +47,9 @@ class DQN:
         self.actor_target.load_state_dict(self.actor.state_dict())  # Copia dei Parametri
 
         self.optimizer = T.optim.Adam(self.actor.parameters())  # OTTIMIZZA
-        self.gamma = 0.95  # Ammortamento Premi
+        self.gamma = 0.95 #0.95  # Ammortamento Premi
         self.memory_size = 2000  # Dimensione Memoria
-        self.batch_size = 32  # Numeri campioni propagati nella rete
+        self.batch_size = 32 #32  # Numeri campioni propagati nella rete
         self.exploration_rate = 1.0  # Tasso iniziale di Exploration
         self.exploration_decay = 0.995  # Fattore di decadimento
         self.tau = 0.005
@@ -63,11 +63,17 @@ class DQN:
         ep_reward_mean = deque(maxlen=100)  # usato per i dati
         replay_buffer = deque(maxlen=self.memory_size)  # lista per salvare [state, action, reward, new_state, done]
 
+        # EXPLORATION DECAY
+        #Expo
+        #self.exploration_decay = (0.005 / self.exploration_rate) ** (1 / num_episodes)
+        #Linear
+        #self.exploration_decay = (self.exploration_rate - 0.005) / num_episodes
         # ciclo per tutti gli episodi (in example)
         for episode in range(num_episodes):
             state, info = self.env.reset(seed=123, options={})
             ep_reward = 0  # REset reward ad ogni tentativo
 
+            print("RATE: ", self.exploration_rate)
             while True:
                 if self.render: self.env.render()
 
@@ -103,10 +109,6 @@ class DQN:
         for (a, b) in zip(target_weights, weights):
             # a.assign(b * tau + a * (1 - tau))
             a.data.copy_(b * tau + a * (1 - tau))
-
-    def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
-        slope = (end_e - start_e) / duration
-        return max(slope * t + start_e, end_e)
 
     def get_action(self, state):
 
