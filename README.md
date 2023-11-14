@@ -15,7 +15,7 @@ All others algorithms in Tensorflow, basicRl.py and Myplotter.py have been writt
 - [x] Deep Q-Learning (DDQN)
 - [ ] REINFORCE
 
-## Available Algorithms in TensorFlow
+## Available Algorithms in TensorFlow (made by D.Corsi)
 - [x] REINFORCE
 - [x] Actor-Critic
 - [x] Advantage Actor Critic (A2C)
