@@ -6,24 +6,29 @@ import gym
 
 class REINFORCE:
 	def __init__(self, env, discrete, verbose):
+
+		#Presi gli argomenti passati
 		self.env = env
 		self.discrete = discrete
 		self.verbose = verbose
 
-		self.input_shape = self.env.observation_space.shape
+		self.input_shape = self.env.observation_space.shape  # Num di input
+		# A seconda dell'environment prendo i numero degli stati in output
 		if(self.discrete): self.action_space = env.action_space.n
 		else: self.action_space = env.action_space.shape[0]
 
+		# Discreto
 		if(self.discrete): 
-			self.actor = self.get_actor_model_disc(self.input_shape, self.action_space)
+			self.actor = self.get_actor_model_disc(self.input_shape, self.action_space)	# Ottenimento rete neurale
 			self.get_action = self.get_action_disc
 			self.actor_objective_function = self.actor_objective_function_disc
-		else: 
-			self.actor = self.get_actor_model_cont(self.input_shape, self.action_space, [env.action_space.low, env.action_space.high])
+		# Continuo
+		else:
+			self.actor = self.get_actor_model_cont(self.input_shape, self.action_space, [env.action_space.low, env.action_space.high])	# Ottenimento rete Neurale
 			self.get_action = self.get_action_cont
 			self.actor_objective_function = self.actor_objective_function_cont
 
-		self.optimizer = keras.optimizers.Adam()
+		self.optimizer = keras.optimizers.Adam()	# Ottimizzo
 		self.gamma = 0.99
 		self.sigma = 1.0
 		self.exploration_decay = 1	
@@ -38,14 +43,15 @@ class REINFORCE:
 		memory_buffer = deque()
 
 		for episode in range(num_episodes):
-			state = self.env.reset()
+			state, info = self.env.reset(seed=123, options={})
 			ep_reward = 0
 
 			while True:
 				if self.render: self.env.render()
 				action = self.get_action(state)
-				new_state, reward, done, _ = self.env.step(action)
+				new_state, reward, terminated, truncated, _ = self.env.step(action)
 				ep_reward += reward
+				done = terminated or truncated
 
 				memory_buffer.append([state, reward, action])
 				if done: break
@@ -118,7 +124,7 @@ class REINFORCE:
 		inputs = keras.layers.Input(shape=input_shape)
 		hidden_0 = keras.layers.Dense(64, activation='relu')(inputs)
 		hidden_1 = keras.layers.Dense(64, activation='relu')(hidden_0)
-		outputs = keras.layers.Dense(output_size, activation='softmax')(hidden_1)
+		outputs = keras.layers.Dense(output_size, activation='softmax')(hidden_1) 		# rende tutti una percentuale usualmente quello più alto è il migliore da scegliere
 
 		return keras.Model(inputs, outputs)
 
@@ -156,7 +162,7 @@ class REINFORCE:
 		inputs = keras.layers.Input(shape=input_shape)
 		hidden_0 = keras.layers.Dense(64, activation='relu')(inputs)
 		hidden_1 = keras.layers.Dense(64, activation='relu')(hidden_0)
-		outputs = keras.layers.Dense(output_size, activation='sigmoid', kernel_initializer=last_init)(hidden_1)
+		outputs = keras.layers.Dense(output_size, activation='sigmoid', kernel_initializer=last_init)(hidden_1) # rende in percentuale gli output (binaria) usualmente quello più alto è il migliore da scegliere
 
 		# Fix output range with the range of the action
 		outputs = outputs * (output_range[1] - output_range[0]) + output_range[0]
