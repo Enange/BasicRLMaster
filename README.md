@@ -1,9 +1,16 @@
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://forthebadge.com)
+![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white)
+![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
+![mlflow](https://img.shields.io/badge/mlflow-%23d9ead3.svg?style=for-the-badge&logo=numpy&logoColor=blue)
+
 ### Disclaimer:
 This is a **work in progress repo**, there may be bugs in the code and numerous typos in the README file.
 
 # BasicRL
 A basic implementation of the standard reinforcement learning algorithms in Pytorch, designed to work with gym-like environments.
-All others algorithms in Tensorflow, basicRl and Myplotter are written by **Davide Corsi**
+All others algorithms in Tensorflow, basicRl and Myplotter are written by **Davide Corsi** -davide.corsi@univr.it
 
 ## Available Algorithms in Pytorch
 
@@ -18,7 +25,6 @@ All others algorithms in Tensorflow, basicRl and Myplotter are written by **Davi
 - [x] Montecarlo Proximal Policy Optimization (mcPPO)
 - [x] Double Deep Q-Learning (DDQN)
 - [x] Deep Deterministic Policy Gradient (DDPG)
-- [ ] Soft Actor-Critic (SAC) 
 - [x] Twin Delayed DDPG (TD3) 
 
 ## Prerequisites
@@ -40,9 +46,10 @@ Download the repo:
 ```bash
   git clone https://github.com/Enange/BasicRLMaster.git
 ```
-Run the example.py
-
-
+Run the main script
+```bash
+  python3 example.py
+```
 
 ## Built With
 * [Pytorch]()
