@@ -8,7 +8,7 @@ import random
 
 '''
 COSE DA SISTEMARE
-
+s 
 *device
 *Neural network Continuos
 '''
