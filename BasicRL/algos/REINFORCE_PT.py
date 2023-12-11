@@ -6,6 +6,13 @@ import numpy as np
 import gym
 import random
 
+'''
+COSE DA SISTEMARE
+
+*device
+*Neural network Continuos
+'''
+
 
 class Network_disc(nn.Module):
     def __init__(self, input_shape, output_size, hidden=32):
