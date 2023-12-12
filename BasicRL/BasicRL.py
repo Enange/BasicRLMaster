@@ -64,6 +64,17 @@ class BasicRL:
 
         if (self.save_model): algorithm.actor.save("data/final_REINFORCE_model.h5")
 
+    def _run_reinforce_PT(self, ep_step):
+        from BasicRL.algos.REINFORCE_PT import REINFORCE_PT
+        algorithm = REINFORCE_PT(self.gym_env, self.discrete_env, self.verbose)
+        if (self.render != None): algorithm.render = self.render
+        if (self.gamma != None): algorithm.gamma = self.gamma
+        if (self.sigma != None): algorithm.sigma = self.sigma
+        if (self.exploration_decay != None): algorithm.exploration_decay = self.exploration_decay
+        algorithm.loop(ep_step)
+
+        if (self.save_model): algorithm.actor.save("data/final_REINFORCE_PT_model.h5")
+
     def _run_ActorCritic(self, ep_step):
         from BasicRL.algos.ActorCritic import ActorCritic
         algorithm = ActorCritic(self.gym_env, self.discrete_env, self.verbose)
