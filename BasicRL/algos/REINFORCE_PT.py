@@ -15,13 +15,13 @@ s
 
 
 class Network_disc(nn.Module):
-    def __init__(self, input_shape, output_size, hidden=32):
+    def __init__(self, input_shape, output_size, hiddenNodes=32):
         # Input -> 64 -> 64 -> output
         super(Network_disc, self).__init__()
-        self.input_layer = nn.Linear(in_features=input_shape, out_features=hidden)
-        self.hidden = nn.Linear(in_features=hidden, out_features=hidden)
-        self.hidden2 = nn.Linear(in_features=hidden, out_features=hidden)
-        self.output_layer = nn.Linear(in_features=hidden, out_features=output_size)  # np.array(output_size).prod())
+        self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
+        self.hidden = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
+        self.hidden2 = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
+        self.output_layer = nn.Linear(in_features=hiddenNodes, out_features=output_size)  # np.array(output_size).prod())
 
     def forward(self, x):
         # x = nn.functional.relu(self.input_layer(x))
@@ -30,8 +30,9 @@ class Network_disc(nn.Module):
         x = nn.functional.relu(self.hidden2(x))
 
         return nn.functional.softmax(self.output_layer(x))
-
-class Network_const(nn.Module):
+    ##
+    # CONTINUOS
+    ##
 
 class REINFORCE_PT:
     def __init__(self, env, discrete, verbose):
@@ -39,7 +40,7 @@ class REINFORCE_PT:
         self.discrete = discrete
         self.verbose = verbose
 
-        # self.device = T.device("cuda:0" if T.cuda.is_available() else "cpu")
+        self.device = T.device("cuda:0" if T.cuda.is_available() else "cpu")
 
         self.input_shape = self.env.observation_space.shape
         if self.discrete:

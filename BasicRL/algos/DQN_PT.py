@@ -12,7 +12,7 @@ import random
 
 # Create the Mode
 class Network(nn.Module):
-    def __init__(self, input_shape, output_size, hiddenNodes=32):
+    def __init__(self, input_shape, output_size, hiddenNodes=64):
         # Input -> 64 -> 64 -> output
         super(Network, self).__init__()
         self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
@@ -45,7 +45,7 @@ class DQN:
 
         self.optimizer = T.optim.Adam(self.actor.parameters())  # OTTIMIZZA
         self.gamma = 0.95  # 0.95  # Ammortamento Premi
-        self.memory_size = 2000  # 2000 Dimensione Memoria
+        self.memory_size = 10000  # 2000 Dimensione Memoria
         self.batch_size = 128  # 32 # Numeri campioni propagati nella rete
         self.exploration_rate = 1.0  # Tasso iniziale di Exploration
         self.exploration_decay = 0.995  # Fattore di decadimento
@@ -94,7 +94,7 @@ class DQN:
                 self._update_target(self.actor.parameters(), self.actor_target.parameters(), tau=self.tau)
 
             # Exponetial
-            self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
+            self.exploration_rate = self.exploration_rate * self.exploration_decay if self.exploration_rate > 0.05 else 0.05  # Aggiorno exploraion rate
             # Linear
             # self.exploration_rate = self.exploration_rate - self.exploration_decay if self.exploration_rate > 0.005 else 0.005  # Aggiorno exploraion rate
             ep_reward_mean.append(ep_reward)  # Ridondante

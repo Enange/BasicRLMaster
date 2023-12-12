@@ -28,7 +28,7 @@ class REINFORCE:
 			self.get_action = self.get_action_cont
 			self.actor_objective_function = self.actor_objective_function_cont
 
-		self.optimizer = keras.optimizers.Adam()	# Ottimizzo
+		self.optimizer = keras.optimizers.legacy.Adam()	# Ottimizzo
 		self.gamma = 0.99
 		self.sigma = 1.0
 		self.exploration_decay = 1	
@@ -117,6 +117,7 @@ class REINFORCE:
 		probability = tf.expand_dims(tf.gather_nd(probability, action_idx), axis=-1)
 		partial_objective = tf.math.log(probability) * (reward - baseline)
 
+
 		return -tf.math.reduce_mean(partial_objective)
 
 	
@@ -158,10 +159,12 @@ class REINFORCE:
 	def get_actor_model_cont(self, input_shape, output_size, output_range):
 		# Initialize weights between -3e-3 and 3-e3
 		last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
+		print("LAST INIT: ", last_init)
 
 		inputs = keras.layers.Input(shape=input_shape)
 		hidden_0 = keras.layers.Dense(64, activation='relu')(inputs)
 		hidden_1 = keras.layers.Dense(64, activation='relu')(hidden_0)
+		print(hidden_1)
 		outputs = keras.layers.Dense(output_size, activation='sigmoid', kernel_initializer=last_init)(hidden_1) # rende in percentuale gli output (binaria) usualmente quello più alto è il migliore da scegliere
 
 		# Fix output range with the range of the action

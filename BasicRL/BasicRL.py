@@ -3,7 +3,7 @@ import os
 
 
 class BasicRL:
-    valid_algorithms = ["REINFORCE", "ActorCritic", "A2C", "PPO", "mcPPO", "DDPG", "DQN", "DQN_PT", "TD3"]
+    valid_algorithms = ["REINFORCE", "REINFORCE_PT", "ActorCritic", "A2C", "PPO", "mcPPO", "DDPG", "DQN", "DQN_PT", "TD3"]
 
     def __init__(self, algorithm, gym_env, verbose=2, **kwargs):
 
@@ -43,6 +43,7 @@ class BasicRL:
 
     def learn(self, ep_step):
         if self.algorithm == "REINFORCE": self._run_reinforce(ep_step)
+        if self.algorithm == "REINFORCE_PT": self._run_reinforce_PT(ep_step)
         if self.algorithm == "ActorCritic": self._run_ActorCritic(ep_step)
         if self.algorithm == "A2C": self._run_A2C(ep_step)
         if self.algorithm == "PPO": self._run_PPO(ep_step)
