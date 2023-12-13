@@ -67,7 +67,7 @@ class DQN:
         # self.exploration_decay = (self.exploration_rate - 0.005) / num_episodes
         # ciclo per tutti gli episodi (in example)
         for episode in range(num_episodes):
-            state, info = self.env.reset(seed=123, options={})
+            state, info = self.env.reset(seed=100, options={})
             ep_reward = 0  # REset reward ad ogni tentativo
 
             print("RATE: ", self.exploration_rate)

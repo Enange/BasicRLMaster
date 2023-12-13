@@ -104,7 +104,7 @@ class REINFORCE_PT:
         memory_buffer = deque()
 
         for episode in range(num_episodes):
-            state, info = self.env.reset(seed=123, options={})
+            state, info = self.env.reset(seed=30, options={})
             ep_reward = 0
 
             while True:

@@ -43,7 +43,7 @@ class REINFORCE:
 		memory_buffer = deque()
 
 		for episode in range(num_episodes):
-			state, info = self.env.reset(seed=123, options={})
+			state, info = self.env.reset(seed=1, options={})
 			ep_reward = 0
 
 			while True:
@@ -152,9 +152,6 @@ class REINFORCE:
 		pdf_value = tf.sqrt(1/(2 * np.pi * self.sigma**2)) * tf.exp(-(action - mu)**2/(2 * self.sigma**2))
 		pdf_value = tf.math.reduce_mean(pdf_value, axis=1, keepdims=True)
 		partial_objective = tf.math.log(pdf_value) * (reward - baseline)
-		print("PDF: ", pdf_value)
-		print("PO: ",  partial_objective)
-		print("RETURN: ", -tf.math.reduce_mean(partial_objective))
 
 		return -tf.math.reduce_mean(partial_objective)
 
@@ -162,7 +159,6 @@ class REINFORCE:
 	def get_actor_model_cont(self, input_shape, output_size, output_range):
 		# Initialize weights between -3e-3 and 3-e3
 		last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
-		print("LAST INIT: ", last_init)
 
 		inputs = keras.layers.Input(shape=input_shape)
 		hidden_0 = keras.layers.Dense(64, activation='relu')(inputs)
@@ -172,10 +168,4 @@ class REINFORCE:
 
 		# Fix output range with the range of the action
 		outputs = outputs * (output_range[1] - output_range[0]) + output_range[0]
-		print(outputs)
-
 		return keras.Model(inputs, outputs)
-
-
-
-	

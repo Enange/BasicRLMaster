@@ -29,9 +29,6 @@ class MyPlotter():
 
 	def load_array(self, file_name_arrays, early_stop=None):
 		data_arrays = [[np.genfromtxt(name, delimiter="\n", unpack=True) for name in array_set] for array_set in file_name_arrays]
-
-
-
 		if(early_stop == None): self.array_len = min([min([len(el) for el in array_set]) for array_set in data_arrays])
 		else: self.array_len = early_stop
 		print(self.array_len)

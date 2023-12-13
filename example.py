@@ -7,15 +7,15 @@ if __name__ == "__main__":
     print("Hello Basic RL example!")
 
     # Load Gym Env
-    env = gym.make("MountainCarContinuous-v0", render_mode="human")
+    env = gym.make("CartPole-v1", render_mode=None)
 
     # Run PPO Algorithm
     learner = BasicRL("REINFORCE_PT", gym_env=env, verbose=2, gamma=0.99, exploration_decay=0.99)
-    learner.learn(10000)
+    learner.learn(500)
 
     # Run DQN Algorithm
     learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, memory_size=10000, exploration_decay=0.99, batch_size=128)
-    learner.learn(10000)
+    learner.learn(500)
 
     # Plot The Results
     plotter = MyPlotter(x_label="Episode", y_label="Reward", title="CartPole v1")
