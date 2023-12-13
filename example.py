@@ -24,5 +24,5 @@ if __name__ == "__main__":
         glob.glob("data/reward_DQNPT_*.txt")
     ])
     plotter.process_data(rolling_window=300, starting_pointer=30)
-    plotter.render_std(labels=["REINFORCE_PT", "DQN_PT"], colors=["g", "r"])
+    plotter.render_std(labels=["REINFORCE_PT", "DQN"], colors=["g", "r"])
     #plotter.render_std(labels=["DQN_PT"], colors=["g"])
