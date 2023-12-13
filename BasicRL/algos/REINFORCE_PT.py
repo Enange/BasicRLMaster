@@ -36,6 +36,33 @@ class Network_disc(nn.Module):
     # CONTINUOS
     ##
 
+
+class Network_cont(nn.Module):
+    def __init__(self, input_shape, output_size, output_range, hiddenNodes=32):
+        # Input -> 64 -> 64 -> output
+        bound = 0.003
+        super(Network_cont, self).__init__()
+        self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
+        self.hidden = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
+        self.hidden2 = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
+        self.output_layer = nn.Linear(in_features=hiddenNodes,
+                                      out_features=output_size)  # np.array(output_size).prod())
+        nn.init.uniform_(self.output_layer.weight, -bound, bound)
+
+        self.output_range = output_range
+
+    def forward(self, x):
+        # x = nn.functional.relu(self.input_layer(x))
+        x = self.input_layer(x)
+        x = nn.functional.relu(self.hidden(x))
+        x = nn.functional.relu(self.hidden2(x))
+        # x = x * (self.output_range[1] - self.output_range[0]) + self.output_range[0]
+        # return nn.functional.sigmoid(self.output_layer(x))
+        output = nn.functional.sigmoid(self.output_layer(x)) * float(
+            (self.output_range[1] - self.output_range[0])) + float(self.output_range[0])  # in range [0,1]
+        return output
+
+
 class REINFORCE_PT:
     def __init__(self, env, discrete, verbose):
         self.env = env
@@ -54,12 +81,11 @@ class REINFORCE_PT:
             self.actor = Network_disc(self.input_shape, self.action_space).to(self.device)
             self.get_action = self.get_action_disc
             self.actor_objective_function = self.actor_objective_function_disc
-        # else:
-        #     self.actor = self.get_actor_model_cont(self.input_shape, self.action_space,
-        #                                            [env.action_space.low, env.action_space.high])
-        #     #self.get_action = self.get_action_cont
-        #     self.actor_objective_function = self.actor_objective_function_cont
-        #
+        else:
+            self.actor = Network_cont(self.input_shape, self.action_space,
+                                      [env.action_space.low, env.action_space.high]).to(self.device)
+            self.get_action = self.get_action_cont
+            self.actor_objective_function = self.actor_objective_function_cont
 
         self.optimizer = T.optim.Adam(self.actor.parameters())
         self.gamma = 0.99
@@ -172,4 +198,28 @@ class REINFORCE_PT:
         partial_objective = T.log(probability) * T.tensor(reward - baseline)
         return -T.mean(partial_objective)
 
+    # CONTINUE
 
+    def get_action_cont(self, state):
+        state = state.reshape(1, -1)
+        mu = self.actor(T.tensor(state))
+
+        action = np.random.normal(loc=mu.tolist(), scale=self.sigma)
+        return action[0]
+
+    def actor_objective_function_cont(self, memory_buffer):
+        # Extract values from buffer
+        state = T.from_numpy(np.vstack(memory_buffer[:, 0])).float().to(self.device)
+        reward = np.vstack(memory_buffer[:, 1])
+        action = T.tensor(list(memory_buffer[:, 2])).to(self.device)
+
+        baseline = np.mean(reward)
+        mu = self.actor(state)
+        pdf_value = T.sqrt(T.tensor(1 / (2 * np.pi * self.sigma ** 2))) * T.exp(
+            T.tensor(-(action - mu) ** 2 / (2 * self.sigma ** 2)))
+        pdf_value = T.mean(pdf_value, dim=1, keepdim=True)
+        partial_objective = T.log(pdf_value) * (reward - baseline)
+
+        mean = T.mean(partial_objective)
+        mean.requires_grad = True
+        return -mean

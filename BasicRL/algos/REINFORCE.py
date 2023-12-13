@@ -152,6 +152,9 @@ class REINFORCE:
 		pdf_value = tf.sqrt(1/(2 * np.pi * self.sigma**2)) * tf.exp(-(action - mu)**2/(2 * self.sigma**2))
 		pdf_value = tf.math.reduce_mean(pdf_value, axis=1, keepdims=True)
 		partial_objective = tf.math.log(pdf_value) * (reward - baseline)
+		print("PDF: ", pdf_value)
+		print("PO: ",  partial_objective)
+		print("RETURN: ", -tf.math.reduce_mean(partial_objective))
 
 		return -tf.math.reduce_mean(partial_objective)
 
@@ -164,11 +167,12 @@ class REINFORCE:
 		inputs = keras.layers.Input(shape=input_shape)
 		hidden_0 = keras.layers.Dense(64, activation='relu')(inputs)
 		hidden_1 = keras.layers.Dense(64, activation='relu')(hidden_0)
-		print(hidden_1)
 		outputs = keras.layers.Dense(output_size, activation='sigmoid', kernel_initializer=last_init)(hidden_1) # rende in percentuale gli output (binaria) usualmente quello più alto è il migliore da scegliere
+
 
 		# Fix output range with the range of the action
 		outputs = outputs * (output_range[1] - output_range[0]) + output_range[0]
+		print(outputs)
 
 		return keras.Model(inputs, outputs)
 
