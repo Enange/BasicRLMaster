@@ -12,9 +12,11 @@ s
 *device
 *Neural network Continuos
 '''
-    ##
-    # DISCRETE
-    ##
+
+
+##
+# DISCRETE
+##
 
 class Network_disc(nn.Module):
     def __init__(self, input_shape, output_size, hiddenNodes=32):
@@ -23,7 +25,8 @@ class Network_disc(nn.Module):
         self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
         self.hidden = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
         self.hidden2 = nn.Linear(in_features=hiddenNodes, out_features=hiddenNodes)
-        self.output_layer = nn.Linear(in_features=hiddenNodes, out_features=output_size)  # np.array(output_size).prod())
+        self.output_layer = nn.Linear(in_features=hiddenNodes,
+                                      out_features=output_size)  # np.array(output_size).prod())
 
     def forward(self, x):
         # x = nn.functional.relu(self.input_layer(x))
@@ -130,8 +133,7 @@ class REINFORCE_PT:
     def update_networks(self, memory_buffer):
         memory_buffer[:, 1] = self.discount_reward(memory_buffer[:, 1])  # Discount the rewards in a MC way
 
-        objective_function = self.actor_objective_function(memory_buffer)# Compute loss with custom loss function
-
+        objective_function = self.actor_objective_function(memory_buffer)  # Compute loss with custom loss function
         self.optimizer.zero_grad()
         objective_function.backward()
         self.optimizer.step()
@@ -142,7 +144,6 @@ class REINFORCE_PT:
         #                           self.actor.trainable_variables)  # Compute gradients actor for network
         #     self.optimizer.apply_gradients(
         #         zip(grads, self.actor.trainable_variables))  # Apply gradients to update network weights
-
 
     def discount_reward(self, rewards):
         sum_reward = 0
@@ -163,14 +164,12 @@ class REINFORCE_PT:
     ## DISCRETE
 
     def get_action_disc(self, state):
-        state = state.reshape(1,-1)
+        state = state.reshape(1, -1)
 
-
-        softmax_out = self.actor(T.tensor(state)) #PROBLEMA SUL RESHAPE -> 122 riga
+        softmax_out = self.actor(T.tensor(state))  # PROBLEMA SUL RESHAPE -> 122 riga
 
         selected_action = np.random.choice(self.action_space, p=softmax_out.detach().numpy()[0])
         return selected_action
-
 
     def actor_objective_function_disc(self, memory_buffer):
         # Extract values from buffer
@@ -182,18 +181,17 @@ class REINFORCE_PT:
         probability = self.actor(state)
         # action_idx = [[counter, val] for counter, val in enumerate(action)]
 
-
         action_idx = []
         for val in action:
             action_idx.append([val])
 
-        #action_idx = [val for val in enumerate(action)]
+        # action_idx = [val for val in enumerate(action)]
         action_idx = T.tensor(action_idx)
-        #probability = tf.expand_dims(tf.gather_nd(probability, action_idx), axis=-1)
+        # probability = tf.expand_dims(tf.gather_nd(probability, action_idx), axis=-1)
         # probability = T.tensor(probability)
         probability = torch.gather(probability, dim=1, index=action_idx)
-        #probability = T.unsqueeze(probability, dim=-1)
-        #partial_objective = tf.math.log(probability) * (reward - baseline)
+        # probability = T.unsqueeze(probability, dim=-1)
+        # partial_objective = tf.math.log(probability) * (reward - baseline)
 
         partial_objective = T.log(probability) * T.tensor(reward - baseline)
         return -T.mean(partial_objective)
