@@ -1,7 +1,8 @@
+import glob
+import gym
+
 from BasicRL.BasicRL import BasicRL
 from BasicRL.MyPlotter import MyPlotter
-import pygame
-import gym, glob
 
 if __name__ == "__main__":
     print("Hello Basic RL example!")
@@ -13,8 +14,9 @@ if __name__ == "__main__":
     learner = BasicRL("REINFORCE_PT", gym_env=env, verbose=2, gamma=0.99, exploration_decay=0.99)
     learner.learn(500)
 
-    # Run DQN Algorithm
-    learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, memory_size=10000, exploration_decay=0.99, batch_size=128)
+    # # Run DQN Algorithm
+    learner = BasicRL("DQN_PT", gym_env=env, verbose=2, gamma=0.99, memory_size=10000, exploration_decay=0.99,
+                      batch_size=128)
     learner.learn(500)
 
     # Plot The Results
@@ -24,4 +26,4 @@ if __name__ == "__main__":
         glob.glob("data/reward_DQNPT_*.txt")
     ])
     plotter.process_data(rolling_window=300, starting_pointer=30)
-    plotter.render_std(labels=["REINFORCE_PT", "DQN"], colors=["g", "r"])
+    plotter.render_std(labels=["REINFORCE_PT", "DQN_PT"], colors=["g", "b"])
