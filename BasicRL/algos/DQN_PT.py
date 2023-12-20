@@ -12,7 +12,7 @@ import random
 
 # Create the Mode
 class Network(nn.Module):
-    def __init__(self, input_shape, output_size, hiddenNodes=64):
+    def __init__(self, input_shape, output_size, hiddenNodes=32):
         # Input -> 64 -> 64 -> output
         super(Network, self).__init__()
         self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
@@ -67,7 +67,7 @@ class DQN:
         # self.exploration_decay = (self.exploration_rate - 0.005) / num_episodes
         # ciclo per tutti gli episodi (in example)
         for episode in range(num_episodes):
-            state, info = self.env.reset(seed=100, options={})
+            state, info = self.env.reset(seed=128, options={})
             ep_reward = 0  # REset reward ad ogni tentativo
 
             print("RATE: ", self.exploration_rate)
@@ -140,6 +140,7 @@ class DQN:
     def actor_objective_function_double(self, replay_buffer):
         state = torch.from_numpy(np.vstack(replay_buffer[:, 0])).float().to(self.device)  # Prende dal RB lo stato
         action = T.tensor(list(replay_buffer[:, 1])).to(self.device)  # Prende dal RB l'azione
+        #action = T.tensor(T.from_numpy(np.vstack(replay_buffer[:, 1]))).to(self.device)  # Prende dal RB l'azione
         reward = torch.from_numpy(np.vstack(replay_buffer[:, 2])).to(self.device)  # Prende dal RB il reward
         new_state = torch.from_numpy(np.vstack(replay_buffer[:, 3])).float().to(
             self.device)  # Prende dal RB il nuovo stato

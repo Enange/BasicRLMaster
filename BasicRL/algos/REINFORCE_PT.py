@@ -19,7 +19,7 @@ s
 ##
 
 class Network_disc(nn.Module):
-    def __init__(self, input_shape, output_size, hiddenNodes=32):
+    def __init__(self, input_shape, output_size, hiddenNodes=128):
         # Input -> 64 -> 64 -> output
         super(Network_disc, self).__init__()
         self.input_layer = nn.Linear(in_features=input_shape, out_features=hiddenNodes)
@@ -41,7 +41,7 @@ class Network_disc(nn.Module):
 
 
 class Network_cont(nn.Module):
-    def __init__(self, input_shape, output_size, output_range, hiddenNodes=32):
+    def __init__(self, input_shape, output_size, output_range, hiddenNodes=64):
         # Input -> 64 -> 64 -> output
         bound = 0.003
         super(Network_cont, self).__init__()
@@ -91,7 +91,7 @@ class REINFORCE_PT:
             self.actor_objective_function = self.actor_objective_function_cont
 
         self.optimizer = T.optim.Adam(self.actor.parameters())
-        self.gamma = 0.99
+        self.gamma = 0.95
         self.sigma = 1.0
         self.exploration_decay = 1
 
@@ -104,7 +104,7 @@ class REINFORCE_PT:
         memory_buffer = deque()
 
         for episode in range(num_episodes):
-            state, info = self.env.reset(seed=30, options={})
+            state, info = self.env.reset(seed=256, options={})
             ep_reward = 0
 
             while True:
@@ -128,7 +128,7 @@ class REINFORCE_PT:
                 f"Episode: {episode:7.0f}, reward: {ep_reward:8.2f}, mean_last_100: {np.mean(ep_reward_mean):8.2f}, sigma: {self.sigma:0.2f}")
             if self.verbose > 0 and self.discrete: print(
                 f"Episode: {episode:7.0f}, reward: {ep_reward:8.2f}, mean_last_100: {np.mean(ep_reward_mean):8.2f}")
-            if self.verbose > 1: np.savetxt(f"data/reward_REINFORCEPT_{self.run_id}.txt", reward_list)
+            if self.verbose > 1: np.savetxt(f"data/reward_REINFORCEPT_hidden32_{self.run_id}.txt", reward_list)
 
     def update_networks(self, memory_buffer):
         memory_buffer[:, 1] = self.discount_reward(memory_buffer[:, 1])  # Discount the rewards in a MC way
@@ -209,7 +209,9 @@ class REINFORCE_PT:
         # Extract values from buffer
         state = T.from_numpy(np.vstack(memory_buffer[:, 0])).float().to(self.device)
         reward = np.vstack(memory_buffer[:, 1])
-        action = T.tensor(list(memory_buffer[:, 2])).to(self.device)
+        #action = T.tensor(list(memory_buffer[:, 2])).to(self.device)
+        action = T.tensor(T.from_numpy(np.vstack(memory_buffer[:, 2]))).to(self.device)
+
 
         baseline = np.mean(reward)
         mu = self.actor(state)
