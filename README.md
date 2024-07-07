@@ -14,6 +14,8 @@ All others algorithms in Tensorflow, basicRl.py and Myplotter.py have been writt
 
 - [x] Deep Q-Learning (DDQN)
 - [x] REINFORCE
+- [x] PPO
+- [x] DDPG  
 
 ## Available Algorithms in TensorFlow (made by D.Corsi)
 - [x] REINFORCE
