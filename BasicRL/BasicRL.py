@@ -1,9 +1,10 @@
 import gym
 import os
+import torch
 
 
 class BasicRL:
-    valid_algorithms = ["REINFORCE", "REINFORCE_PT", "ActorCritic", "A2C", "PPO", "mcPPO", "DDPG", "DQN", "DQN_PT", "TD3"]
+    valid_algorithms = ["REINFORCE", "REINFORCE_PT", "ActorCritic", "A2C", "PPO", "PPO_PT", "mcPPO", "DDPG", "DDPG_PT", "DQN", "DQN_PT", "TD3"]
 
     def __init__(self, algorithm, gym_env, verbose=2, **kwargs):
 
@@ -25,7 +26,8 @@ class BasicRL:
         self.critic_net = None
         self.epoch = None
         self.render = None
-        self.save_model = False
+        self.save_model = None
+        self.load_model = False
 
         # Parse kwargs attribute
         for key, value in kwargs.items():
@@ -44,11 +46,13 @@ class BasicRL:
     def learn(self, ep_step):
         if self.algorithm == "REINFORCE": self._run_reinforce(ep_step)
         if self.algorithm == "REINFORCE_PT": self._run_reinforce_PT(ep_step)
+        if self.algorithm == "PPO_PT": self._run_PPO_PT(ep_step)
         if self.algorithm == "ActorCritic": self._run_ActorCritic(ep_step)
         if self.algorithm == "A2C": self._run_A2C(ep_step)
         if self.algorithm == "PPO": self._run_PPO(ep_step)
         if self.algorithm == "mcPPO": self._run_mcPPO(ep_step)
         if self.algorithm == "DDPG": self._run_DDPG(ep_step)
+        if self.algorithm == "DDPG_PT": self._run_DDPG_PT(ep_step)
         if self.algorithm == "DQN_PT": self._run_DQN_PT(ep_step)
         if self.algorithm == "DQN": self._run_DQN(ep_step)
         if self.algorithm == "TD3": self._run_TD3(ep_step)
@@ -66,14 +70,14 @@ class BasicRL:
 
     def _run_reinforce_PT(self, ep_step):
         from BasicRL.algos.REINFORCE_PT import REINFORCE_PT
-        algorithm = REINFORCE_PT(self.gym_env, self.discrete_env, self.verbose)
+        algorithm = REINFORCE_PT(self.gym_env, self.discrete_env, self.verbose, self.load_model)
         if (self.render != None): algorithm.render = self.render
         if (self.gamma != None): algorithm.gamma = self.gamma
         if (self.sigma != None): algorithm.sigma = self.sigma
         if (self.exploration_decay != None): algorithm.exploration_decay = self.exploration_decay
         algorithm.loop(ep_step)
 
-        if (self.save_model): algorithm.actor.save("data/final_REINFORCE_PT_model.h5")
+        if (self.save_model): torch.save(algorithm.actor.state_dict(), "data/final_REINFORCE_PT_model.h5")
 
     def _run_ActorCritic(self, ep_step):
         from BasicRL.algos.ActorCritic import ActorCritic
@@ -110,6 +114,19 @@ class BasicRL:
 
         if (self.save_model): algorithm.actor.save("data/final_PPO_model.h5")
 
+    def _run_PPO_PT(self, ep_step):
+        from BasicRL.algos.PPO_PT import PPO_PT
+        algorithm = PPO_PT(self.gym_env, self.discrete_env, self.verbose)
+        if (self.render != None): algorithm.render = self.render
+        if (self.gamma != None): algorithm.gamma = self.gamma
+        if (self.sigma != None): algorithm.sigma = self.sigma
+        if (self.exploration_decay != None): algorithm.exploration_decay = self.exploration_decay
+        if (self.batch_size != None): algorithm.batch_size = self.batch_size
+        if (self.epoch != None): algorithm.epoch = self.epoch
+        algorithm.loop(ep_step)
+
+        if (self.save_model): algorithm.actor.save("data/final_PPO_PT_model.h5")
+
     def _run_mcPPO(self, ep_step):
         from BasicRL.algos.mcPPO import mcPPO
         algorithm = mcPPO(self.gym_env, self.discrete_env, self.verbose)
@@ -138,6 +155,20 @@ class BasicRL:
 
         if (self.save_model): algorithm.actor.save("data/final_DDPG_model.h5")
 
+    def _run_DDPG_PT(self, ep_step):
+        from BasicRL.algos.DDPG_PT import DDPG_PT
+        assert (not self.discrete_env), "DDPG requires continuous environments!"
+        algorithm = DDPG_PT(self.gym_env, self.verbose)
+        if (self.render != None): algorithm.render = self.render
+        if (self.gamma != None): algorithm.gamma = self.gamma
+        if (self.memory_size != None): algorithm.memory_size = self.memory_size
+        if (self.exploration_rate != None): algorithm.exploration_rate = self.exploration_rate
+        if (self.exploration_decay != None): algorithm.exploration_decay = self.exploration_decay
+        if (self.batch_size != None): algorithm.batch_size = self.batch_size
+        if (self.tau != None): algorithm.tau = self.tau
+        algorithm.loop(ep_step)
+
+        if (self.save_model): torch.save(algorithm.actor, "data/final_DDPG_PT_model.pt")
     def _run_DQN_PT(self, ep_step):
         from BasicRL.algos.DQN_PT import DQN
         assert (self.discrete_env), "DQN requires discrete environments!"

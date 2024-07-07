@@ -43,15 +43,14 @@ class REINFORCE:
 		memory_buffer = deque()
 
 		for episode in range(num_episodes):
-			state, info = self.env.reset(seed=1, options={})
+			state, info = self.env.reset()
 			ep_reward = 0
 
 			while True:
 				if self.render: self.env.render()
 				action = self.get_action(state)
-				new_state, reward, terminated, truncated, _ = self.env.step(action)
+				new_state, reward, done, info= self.env.step(action)
 				ep_reward += reward
-				done = terminated or truncated
 
 				memory_buffer.append([state, reward, action])
 				if done: break
@@ -87,7 +86,7 @@ class REINFORCE:
 		discounted_rewards.reverse() 
 
 		# Normalize
-		eps = np.finfo(np.float64).eps.item()  # Smallest number such that 1.0 + eps != 1.0 
+		eps = np.finfo(np.float64).eps.item()  # Smallest number such that 1.0 + eps != 1.0
 		discounted_rewards = np.array(discounted_rewards)
 		discounted_rewards = (discounted_rewards - np.mean(discounted_rewards)) / (np.std(discounted_rewards) + eps)
 
@@ -159,7 +158,6 @@ class REINFORCE:
 	def get_actor_model_cont(self, input_shape, output_size, output_range):
 		# Initialize weights between -3e-3 and 3-e3
 		last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
-
 		inputs = keras.layers.Input(shape=input_shape)
 		hidden_0 = keras.layers.Dense(64, activation='relu')(inputs)
 		hidden_1 = keras.layers.Dense(64, activation='relu')(hidden_0)

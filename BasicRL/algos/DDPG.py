@@ -19,8 +19,8 @@ class DDPG:
 		self.critic_target = self.get_critic_model(self.input_shape, self.action_shape)
 		self.critic_target.set_weights(self.critic.get_weights())
 
-		self.actor_optimizer = keras.optimizers.Adam()
-		self.critic_optimizer = keras.optimizers.Adam()
+		self.actor_optimizer = keras.optimizers.legacy.Adam()
+		self.critic_optimizer = keras.optimizers.legacy.Adam()
 		self.gamma = 0.99
 		self.memory_size = 50000
 		self.batch_size = 64
@@ -38,13 +38,14 @@ class DDPG:
 		replay_buffer = deque(maxlen=self.memory_size)
 
 		for episode in range(num_episodes):
-			state = self.env.reset()
+			state, info = self.env.reset()
 			ep_reward = 0
 
 			while True:
 				if self.render: self.env.render()
 				action = self.get_action(state)
-				new_state, reward, done, _ = self.env.step(action)
+				new_state, reward, terminated, truncated, _ = self.env.step(action)
+				done = terminated or truncated
 				ep_reward += reward
 
 				replay_buffer.append([state, action, reward, new_state, done])
@@ -64,7 +65,7 @@ class DDPG:
 	def get_action(self, state):
 		action = self.actor(state.reshape((1, -1))).numpy()[0]
 		action += np.random.normal(loc=0, scale=self.exploration_rate)
-
+		#print(action)
 		return action
 
 	
@@ -148,6 +149,6 @@ class DDPG:
 		target = reward + gamma * max_q * (1 - done.astype(int))
 
 		predicted_values = self.critic([state, action])
-		mse = tf.math.square(predicted_values - target.numpy())
+		mse = tf.math.square(predicted_values - target)
 
 		return tf.math.reduce_mean(mse)

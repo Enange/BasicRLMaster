@@ -12,6 +12,7 @@ class PPO:
 		self.verbose = verbose
 
 		self.input_shape = self.env.observation_space.shape
+		print(self.input_shape)
 		if(self.discrete): self.action_space = env.action_space.n
 		else: self.action_space = env.action_space.shape[0]
 
@@ -26,10 +27,10 @@ class PPO:
 
 		self.critic = self.get_critic_model(self.input_shape)
 
-		self.actor_optimizer = keras.optimizers.Adam()
-		self.critic_optimizer = keras.optimizers.Adam()
+		self.actor_optimizer = keras.optimizers.legacy.Adam()
+		self.critic_optimizer = keras.optimizers.legacy.Adam()
 		self.gamma = 0.99
-		self.sigma = 1.0
+		self.sigma = 0.99 #1.0
 		self.exploration_decay = 1
 		self.batch_size = 128
 		self.epoch = 10
@@ -44,7 +45,10 @@ class PPO:
 		memory_buffer = deque()
 
 		for episode in range(num_episodes):
-			state, info = self.env.reset(seed=123, options={})
+			if (episode % 5 == 0):
+				seed = np.random.randint(255, high=None)
+
+			state, info = self.env.reset(options={}, seed=seed)
 			ep_reward = 0
 
 			while True:
@@ -143,8 +147,9 @@ class PPO:
 
 		baseline = self.critic(state)
 		adv = self._Gt(reward, new_state, done) - baseline # Advantage = TD - baseline
-
+		print('State', state)
 		prob = self.actor(state)
+		print("prob:", prob)
 
 		action_idx = [[counter, val] for counter, val in enumerate(action)] #Trick to obatin the coordinates of each desired action
 		prob = tf.expand_dims(tf.gather_nd(prob, action_idx), axis=-1)
@@ -174,7 +179,9 @@ class PPO:
 
 	def get_action_cont(self, state):
 		mu = self.actor(state.reshape((1, -1)))
+		print("MU: ", mu)
 		action = np.random.normal(loc=mu, scale=self.sigma)
+		print("ACTION: ", action)
 		return action[0], mu[0]
 
 
