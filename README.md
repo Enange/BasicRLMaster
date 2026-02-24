@@ -12,7 +12,7 @@ All others algorithms in Tensorflow, basicRl.py and Myplotter.py have been writt
 
 ## Available Algorithms in Pytorch
 
-- [x] Deep Q-Learning (DDQN)
+- [x] DQN
 - [x] REINFORCE
 - [x] PPO
 - [x] DDPG  
